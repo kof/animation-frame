@@ -22,16 +22,23 @@ Otherwise its defined on window:
 ### Activate the shim
 
 It will replace native implementation if it does exist but still will use it if possible.
-So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` after this  safely.
+So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` after this  safely. Optionally you can pass the frame rate.
 
-    new AnimationFrame().shim();
+    var animationFrame = AnimationFrame.shim();
+
+### Set custom default frame rate
+
+There are devices with different refresh rate than 60 out of there. You can define a custom value, for the shim implementation. Native implementation should do it for you.
+Do it before requesting frames, because after that the frame length is cached.
+
+    AnimationFrame.FRAME_RATE = 30;
 
 ### Request frame
 
     // Using default frame rate
     var animationFrame = new AnimationFrame();
 
-    // Using custom frame rate, frame rates higher 60hz are not supported.
+    // Using custom frame rate.
     var animationFrame = new AnimationFrame(20);
 
     var frameId = animationFrame.request(function(time) {
@@ -42,13 +49,6 @@ So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` 
 
     var animationFrame = new AnimationFrame();
     animationFrame.cancel(frameId);
-
-### Custom default frame rate
-
-There are devices with different refresh rate than 60 out of there. You can define a custom value, for the shim implementation. Native implementation should do it for you.
-Do it before requesting frames, because after that the frame length is cached.
-
-    AnimationFrame.FRAME_RATE = 30;
 
 ## Credits
 
