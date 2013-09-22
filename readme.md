@@ -45,8 +45,8 @@ So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` 
 
 ### Custom default frame rate
 
-    There are devices with different refresh rate than 60 out of there. You can define a custom value, for the shim implementation. Native implementation should do it for you.
-    Do it before requesting frames, because after that the frame length is cached.
+There are devices with different refresh rate than 60 out of there. You can define a custom value, for the shim implementation. Native implementation should do it for you.
+Do it before requesting frames, because after that the frame length is cached.
 
     AnimationFrame.FRAME_RATE = 30;
 
