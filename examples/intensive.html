@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>animationFrame</title>
+
+    </head>
+    <body>
+        <h3>Doing expensive calculation for each frame</h3>
+        <div id="rate"></div>
+        <script src="../../animationFrame.js"></script>
+        <script>
+        (function() {
+            var startTime,
+                framesDone = 0,
+                animationFrame = new AnimationFrame();
+
+            function raf(callback) {
+                if (startTime == null) {
+                    startTime = Date.now();
+                }
+                animationFrame.request(function() {
+                    framesDone++;
+                    callback();
+                });
+            }
+
+            (function animate() {
+                for (var i=0; i<200000; i++) {
+                    new Date();
+                }
+                raf(animate);
+            }());
+
+            var div = document.querySelectorAll('#rate')[0];
+            setInterval(function() {
+                if (framesDone) {
+                    var rate = 1000 / ((Date.now() - startTime) / framesDone);
+                    div.innerHTML = rate;
+                }
+            }, 1000);
+        }())
+        </script>
+    </body>
+</html>

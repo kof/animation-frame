@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>animationFrame</title>
+
+    </head>
+    <body>
+        <h3>Fixing ios6 issues</h3>
+        <div id="rate"></div>
+        <iframe src="./iframe.html"></iframe>
+        <script src="../../animationFrame.js"></script>
+        <script>
+        (function() {
+            var startTime,
+                framesDone = 0,
+                animationFrame = new AnimationFrame();
+
+            function raf(callback) {
+                if (startTime == null) {
+                    startTime = Date.now();
+                }
+                animationFrame.request(function() {
+                    framesDone++;
+                    callback();
+                });
+            }
+
+            (function animate() {
+                raf(animate);
+            }());
+
+            var div = document.querySelectorAll('#rate')[0];
+            setInterval(function() {
+                if (framesDone) {
+                    var rate = 1000 / ((Date.now() - startTime) / framesDone);
+                    div.innerHTML = rate;
+                }
+            }, 1000);
+        }())
+        </script>
+    </body>
+</html>

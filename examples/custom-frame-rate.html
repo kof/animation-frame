@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>animationFrame</title>
+        <style>
+            #object {
+                position: absolute;
+                top: 100px;
+                width: 50px;
+                height: 50px;
+                background: red;
+            }
+        </style>
+    </head>
+    <body>
+        <h3>Running custom frame rate</h3>
+        <div id="rate"></div>
+        <div id="object"></div>
+        <script src="../../animationFrame.js"></script>
+        <script>
+        (function() {
+            var startTime,
+                framesDone = 0,
+                animationFrame = new AnimationFrame(20);
+
+            function raf(callback) {
+                if (startTime == null) {
+                    startTime = Date.now();
+                }
+                animationFrame.request(function() {
+                    framesDone++;
+                    callback();
+                });
+            }
+
+            var objectElem = document.getElementById('object'),
+                left = 0;
+            (function animate() {
+                left = left > 100 ? 0 : left + 1;
+                // Its just example, use transformations in the real life.
+                objectElem.style.left = left+ 'px';
+                raf(animate);
+            }());
+
+            var rateElem = document.getElementById('rate');
+            setInterval(function() {
+                if (framesDone) {
+                    var rate = 1000 / ((Date.now() - startTime) / framesDone);
+                    rateElem.innerHTML = rate;
+                }
+            }, 1000);
+        }())
+        </script>
+    </body>
+</html>

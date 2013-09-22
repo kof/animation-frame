@@ -1,0 +1,21 @@
+{
+  "name": "animationFrame",
+  "version": "0.1.0",
+  "description": "An even better requestAnimationFrame",
+  "author": {
+    "name": "Oleg Slobodskoi",
+    "email": "oleg008@gmail.com"
+  },
+  "keywords": [
+    "animationFrame",
+    "RAF",
+    "requestAnimationFrame",
+    "cancelAnimationFrame"
+  ],
+  "dependencies": {},
+  "main": "raf.js",
+  "scripts": [
+  ],
+  "repo": "kof/raf",
+  "license": "MIT"
+}

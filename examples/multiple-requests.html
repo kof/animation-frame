@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>animationFrame</title>
+
+    </head>
+    <body>
+        <h3>Running multiple animations in parallel</h3>
+        <div id="rate"></div>
+        <script src="../../animationFrame.js"></script>
+        <script>
+        (function() {
+            var startTime,
+                frames1Done = 0,
+                frames2Done = 0,
+                animationFrame = new AnimationFrame();
+
+            function raf(callback) {
+                if (startTime == null) {
+                    startTime = Date.now();
+                }
+                animationFrame.request(function() {
+                    callback();
+                });
+            }
+
+            (function animate() {
+                frames1Done++;
+                raf(animate);
+            }());
+
+            (function animate() {
+                frames2Done++;
+                raf(animate);
+            }());
+
+            var div = document.querySelectorAll('#rate')[0];
+            setInterval(function() {
+                if (frames1Done && frames2Done) {
+                    var rate1 = 1000 / ((Date.now() - startTime) / frames1Done),
+                        rate2 = 1000 / ((Date.now() - startTime) / frames2Done);
+
+                    div.innerHTML = 'animation 1 >> ' + rate1 + ', ' +
+                        'animation 2 >> ' + rate2;
+                }
+            }, 1000);
+        }())
+        </script>
+    </body>
+</html>
