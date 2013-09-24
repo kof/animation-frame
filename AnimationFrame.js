@@ -66,8 +66,16 @@ AnimationFrame.FRAME_RATE = 60;
  */
 AnimationFrame.shim = function(frameRate) {
     var animationFrame = new AnimationFrame(frameRate);
-    window.requestAnimationFrame = animationFrame.request;
-    window.cancelAnimationFrame = animationFrame.cancel;
+    window.requestAnimationFrame = (function(self){
+        return function() {
+            animationFrame.request.apply(self, arguments);
+        }
+    }(animationFrame));
+    window.cancelAnimationFrame = (function(self){
+        return function() {
+            animationFrame.cancel.apply(self, arguments);
+        }
+    }(animationFrame));
     return animationFrame;
 };
 
