@@ -11,7 +11,6 @@
 
 var now = Date.now,
     setTimeout = window.setTimeout,
-    shim = false,
     nativeRequestAnimationFrame,
     nativeCancelAnimationFrame,
     useNative = false;
@@ -69,13 +68,13 @@ AnimationFrame.shim = function(frameRate) {
     var animationFrame = new AnimationFrame(frameRate);
     window.requestAnimationFrame = animationFrame.request;
     window.cancelAnimationFrame = animationFrame.cancel;
-    shim = true;
     return animationFrame;
 };
 
 
 /**
- * We upgrade to native raf as soon we know it does works.
+ * Request animation frame.
+ * We will use the native raf as soon as we know it does works.
  *
  * @param {Function} callback
  * @return {Number} timeout id or requested animation frame id
@@ -142,12 +141,10 @@ AnimationFrame.prototype.cancel = function(id) {
 // Support commonjs wrapper, amd define and plain window.
 if (typeof exports == 'object' && typeof module == 'object') {
     module.exports = AnimationFrame;
+} else if (typeof define == 'function' && define.amd) {
+    define(function() { return AnimationFrame; });
 } else {
-    if (typeof define == 'function' && define.amd) {
-        define(function() { return AnimationFrame; });
-    } else {
-        window.AnimationFrame = AnimationFrame;
-    }
+    window.AnimationFrame = AnimationFrame;
 }
 
 }(window));
