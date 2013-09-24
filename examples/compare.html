@@ -80,14 +80,11 @@
                         );
                         lefts.push(left += 60);
                         dirs.push('right');
-                        console.log(i);
                     }
-                    console.log(objectElements);
                     $('#objects').append(objectElements);
                 }
 
                 function animate() {
-                    // Its just example, use transformations in the real life.
                     for (var i = 0; i < objectElements.length; i++) {
                         if (lefts[i] + 50 >= wWidth) {
                             dirs[i] = 'left';

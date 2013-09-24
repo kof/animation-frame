@@ -40,7 +40,6 @@ function AnimationFrame(frameRate) {
     this.frameRate = frameRate || AnimationFrame.FRAME_RATE;
     this._frameLength = 1000 / this.frameRate;
     this._isCustomFrameRate = this.frameRate !== AnimationFrame.FRAME_RATE;
-    this._originalFrameLength = 1000 / AnimationFrame.FRAME_RATE;
     this._tickId = null;
     this._callbacks = {length: 0};
     this._lastTickTime = 0;
@@ -97,13 +96,6 @@ AnimationFrame.prototype.request = function(callback) {
         // http://jsperf.com/math-max-vs-comparison/3
         // http://jsperf.com/date-now-vs-date-gettime/11
         delay = this._frameLength + this._lastTickTime - (now ? now() : (new Date).getTime());
-
-        // We assume native implementation runs with same rate as our default.
-        // Correct the frame rate considering native raf delay.
-        if (hasNative && this._isCustomFrameRate) {
-            delay = delay - self._originalFrameLength;
-        }
-
         if (delay < 0) delay = 0;
 
         this._tickId = setTimeout(function() {
