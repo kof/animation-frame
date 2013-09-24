@@ -9,33 +9,24 @@
         <div id="rate"></div>
         <iframe src="./iframe.html"></iframe>
         <script src="../AnimationFrame.js"></script>
+        <script src="../FpsMeter.js"></script>
+
         <script>
         (function() {
-            var startTime,
-                framesDone = 0,
-                animationFrame = new AnimationFrame();
-
-            function raf(callback) {
-                if (startTime == null) {
-                    startTime = Date.now();
-                }
-                animationFrame.request(function() {
-                    framesDone++;
-                    callback();
-                });
-            }
+            var animationFrame = new AnimationFrame(),
+                fpsMeter = new FpsMeter();
 
             (function animate() {
-                raf(animate);
+                animationFrame.request(function() {
+                    fpsMeter.tick();
+                    animate();
+                });
             }());
 
-            var div = document.querySelectorAll('#rate')[0];
-            setInterval(function() {
-                if (framesDone) {
-                    var rate = 1000 / ((Date.now() - startTime) / framesDone);
-                    div.innerHTML = rate;
-                }
-            }, 1000);
+            var rateElem = document.getElementById('rate');
+            fpsMeter.start(function(fps) {
+                rateElem.innerHTML = fps + ' FPS';
+            });
         }())
         </script>
     </body>
