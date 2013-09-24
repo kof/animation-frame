@@ -70,7 +70,6 @@
 
             (function animate() {
                 if (objectElements.length) {
-                    fpsMeter.tick();
 
                     // Its just example, use transformations in the real life.
                     for (var i = 0; i < objectElements.length; i++) {
@@ -88,6 +87,8 @@
                         }
                         objectElements[i].style.left = lefts[i] + 'px';
                     }
+
+                    fpsMeter.tick();
                 }
                 animationFrame.request(animate);
             }());
