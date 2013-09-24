@@ -31,7 +31,7 @@ var now = Date.now,
     // http://shitwebkitdoes.tumblr.com/post/47186945856/native-requestanimationframe-broken-on-ios-6
     // https://gist.github.com/KrofDrakula/5318048
     nativeRequestAnimationFrame && nativeRequestAnimationFrame(function() {
-        hasNative = true;
+        //hasNative = true;
     });
 }());
 
@@ -70,8 +70,8 @@ AnimationFrame.shim = function(frameRate) {
     window.requestAnimationFrame = function(callback) {
         return animationFrame.request(callback);
     };
-    window.cancelAnimationFrame = function() {
-        return animationFrame.request(callback);
+    window.cancelAnimationFrame = function(id) {
+        return animationFrame.cancel(id);
     };
 
     return animationFrame;
