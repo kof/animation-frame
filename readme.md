@@ -6,6 +6,7 @@
 - you can define your own frame rate specifically for every animation
 - highly optimized for performance
 - can be used as a shim, but has an own namespace per default
+- no performance degradation if using mutilple RAF calls in parallel (see examples/compare.html)
 
 ## Usage
 

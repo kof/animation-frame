@@ -10,8 +10,7 @@ function FpsMeter(opts) {
     opts || (opts = {});
     this.updateRate = opts.updateRate || 1000;
     this._tickCounter = 0;
-    this._updateIntervalId = null;
-    this._resetIntervalId = null;
+    this._updateTimeoutId = null;
 }
 
 FpsMeter.prototype.start = function(callback) {
@@ -19,19 +18,18 @@ FpsMeter.prototype.start = function(callback) {
 
     this._startTime = now();
     this._tickCounter = 0;
-    this._updateIntervalId = setInterval(function() {
-        if (!self._tickCounter) return;
-
-        callback(1000 / ((now() - self._startTime) / self._tickCounter));
-        self._startTime = now();
-        self._tickCounter = 0;
+    this._updateTimeoutId = setTimeout(function() {
+        if (self._tickCounter) {
+            callback(Math.round(1000 / ((now() - self._startTime) / self._tickCounter)));
+        }
+        self.start(callback);
     }, this.updateRate);
 
     return this;
 };
 
 FpsMeter.prototype.stop = function() {
-    clearInterval(this._updateIntervalId);
+    clearTimeout(this._updateTimeoutId);
 
     return this;
 };

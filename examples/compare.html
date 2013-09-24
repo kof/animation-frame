@@ -9,7 +9,7 @@
             }
             #objects {
                 position: absolute;
-                top: 130px;
+                top: 250px;
                 width: 100%;
                 height: 50px;
                 border: 1px solid green;
@@ -21,27 +21,42 @@
                 height: 50px;
             }
         </style>
-    </head>
-    <body>
-        <h3>Compare shims, generate load</h3>
-        <div id="rate"></div>
-        <button id="add-object">Add objects</button>
-        <button id="remove-object">Remove objects</button>
-        <span id="objects-amount"></span>
-        <div id="objects">
-        </div>
         <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
         <script src="../AnimationFrame.js"></script>
         <script src="../FpsMeter.js"></script>
+    </head>
+    <body>
+        <h3>Compare shims, generate load</h3>
+        <div>Current demo compares 2 different implementations in terms of performance degradation if using multiple requestAnimationFrames in parallel. To see realistic result you need to use a device without native RAF support or comment out "useNative = true" in AnimationFrame.js</div>
+        <div id="rate"></div>
+        <button id="add-object">Add objects</button>
+        <span id="objects-amount"></span> objects<br />
+        <button class="switch-author" data-author="kof">Use @kof implementation</button>
+        <button class="switch-author" data-author="emoller">Use @emoller implementation</button>
+        Current author: @<span id="current-author">kof</span>
+        <div id="objects">
+        </div>
         <script>
         (function() {
             var animationFrame = new AnimationFrame(),
                 fpsMeter = new FpsMeter(),
-                objectsAmount = 0,
-                objectElements = [],
                 wWidth = $(window).width(),
-                lefts = [],
-                dirs = [];
+                groups = 0,
+                author = 'kof';
+
+            // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+            var requestAnimationFrame = (function() {
+                var lastTime = 0;
+
+                return function(callback, element) {
+                    var currTime = new Date().getTime();
+                    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                    var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                      timeToCall);
+                    lastTime = currTime + timeToCall;
+                    return id;
+                };
+            }());
 
             function randomColor() {
                 var letters = '0123456789ABCDEF'.split('');
@@ -52,28 +67,28 @@
                 return color;
             }
 
-            function render() {
-                var left = 0;
-                objectElements = [];
-                $('#objects').empty();
-                for (var i = 0; i < objectsAmount; i++) {
-                    objectElements.push(
-                        $('<div class="object"/>')
-                            .css('background', randomColor())
-                            .appendTo('#objects')[0]
-                    );
-                    lefts.push(left += 60);
-                    dirs.push('right');
+            function add(amount) {
+                var objectElements = [],
+                    lefts = [],
+                    dirs = [];
+
+                function render() {
+                    var left = 0;
+                    for (var i = 0; i < amount; i++) {
+                        objectElements.push(
+                            $('<div class="object"/>').css('background', randomColor())
+                        );
+                        lefts.push(left += 60);
+                        dirs.push('right');
+                        console.log(i);
+                    }
+                    console.log(objectElements);
+                    $('#objects').append(objectElements);
                 }
-                $('#objects-amount').html(objectsAmount);
-            }
 
-            (function animate() {
-                if (objectElements.length) {
-
+                function animate() {
                     // Its just example, use transformations in the real life.
                     for (var i = 0; i < objectElements.length; i++) {
-
                         if (lefts[i] + 50 >= wWidth) {
                             dirs[i] = 'left';
                         } else if (lefts[i] <= 0) {
@@ -81,30 +96,40 @@
                         }
 
                         if (dirs[i] == 'right') {
-                            lefts[i] += 2;
+                            lefts[i] += 1;
                         } else {
-                            lefts[i] -= 2;
+                            lefts[i] -= 1;
                         }
-                        objectElements[i].style.left = lefts[i] + 'px';
+
+                        objectElements[i][0].style.left = lefts[i] + 'px';
                     }
 
                     fpsMeter.tick();
+
+                    if (author == 'kof') {
+                        animationFrame.request(animate);
+                    } else {
+                        requestAnimationFrame(animate);
+                    }
                 }
-                animationFrame.request(animate);
-            }());
+
+                render();
+                animate();
+            }
 
             var rateElem = document.getElementById('rate');
             fpsMeter.start(function(fps) {
-                rateElem.innerHTML = fps + ' FPS';
+                rateElem.innerHTML = fps / groups + ' FPS';
             });
 
             $('#add-object').click(function() {
-                objectsAmount += 5;
-                render();
+                groups++;
+                $('#objects-amount').html(groups * 100);
+                add(100);
             });
-            $('#remove-object').click(function() {
-                objectsAmount -= 5;
-                render();
+            $('.switch-author').click(function() {
+                author = $(this).data('author');
+                $('#current-author').html(author);
             });
         }());
         </script>
