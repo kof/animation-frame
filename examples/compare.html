@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>animationFrame</title>
+        <meta name=viewport content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"/>
+        <style>
+            body {
+                margin: 0;
+            }
+            #objects {
+                position: absolute;
+                top: 130px;
+                width: 100%;
+                height: 50px;
+                border: 1px solid green;
+                overflow: auto;
+            }
+            .object {
+                position: absolute;
+                width: 50px;
+                height: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <h3>Compare shims, generate load</h3>
+        <div id="rate"></div>
+        <button id="add-object">Add objects</button>
+        <button id="remove-object">Remove objects</button>
+        <span id="objects-amount"></span>
+        <div id="objects">
+        </div>
+        <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+        <script src="../AnimationFrame.js"></script>
+        <script src="../FpsMeter.js"></script>
+        <script>
+        (function() {
+            var animationFrame = new AnimationFrame(),
+                fpsMeter = new FpsMeter(),
+                objectsAmount = 0,
+                objectElements = [],
+                wWidth = $(window).width(),
+                lefts = [],
+                dirs = [];
+
+            function randomColor() {
+                var letters = '0123456789ABCDEF'.split('');
+                var color = '#';
+                for (var i = 0; i < 6; i++ ) {
+                    color += letters[Math.round(Math.random() * 15)];
+                }
+                return color;
+            }
+
+            function render() {
+                var left = 0;
+                objectElements = [];
+                $('#objects').empty();
+                for (var i = 0; i < objectsAmount; i++) {
+                    objectElements.push(
+                        $('<div class="object"/>')
+                            .css('background', randomColor())
+                            .appendTo('#objects')[0]
+                    );
+                    lefts.push(left += 60);
+                    dirs.push('right');
+                }
+                $('#objects-amount').html(objectsAmount);
+            }
+
+            (function animate() {
+                if (objectElements.length) {
+                    fpsMeter.tick();
+
+                    // Its just example, use transformations in the real life.
+                    for (var i = 0; i < objectElements.length; i++) {
+
+                        if (lefts[i] + 50 >= wWidth) {
+                            dirs[i] = 'left';
+                        } else if (lefts[i] <= 0) {
+                            dirs[i] = 'right';
+                        }
+
+                        if (dirs[i] == 'right') {
+                            lefts[i] += 2;
+                        } else {
+                            lefts[i] -= 2;
+                        }
+                        objectElements[i].style.left = lefts[i] + 'px';
+                    }
+                }
+                animationFrame.request(animate);
+            }());
+
+            var rateElem = document.getElementById('rate');
+            fpsMeter.start(function(fps) {
+                rateElem.innerHTML = fps + ' FPS';
+            });
+
+            $('#add-object').click(function() {
+                objectsAmount += 5;
+                render();
+            });
+            $('#remove-object').click(function() {
+                objectsAmount -= 5;
+                render();
+            });
+        }());
+        </script>
+    </body>
+</html>

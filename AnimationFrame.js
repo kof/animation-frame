@@ -13,7 +13,7 @@ var now = Date.now,
     setTimeout = window.setTimeout,
     nativeRequestAnimationFrame,
     nativeCancelAnimationFrame,
-    useNative = false;
+    hasNative = false;
 
 (function() {
     var i,
@@ -31,7 +31,7 @@ var now = Date.now,
     // http://shitwebkitdoes.tumblr.com/post/47186945856/native-requestanimationframe-broken-on-ios-6
     // https://gist.github.com/KrofDrakula/5318048
     nativeRequestAnimationFrame && nativeRequestAnimationFrame(function() {
-        useNative = true;
+        //hasNative = true;
     });
 }());
 
@@ -66,16 +66,14 @@ AnimationFrame.FRAME_RATE = 60;
  */
 AnimationFrame.shim = function(frameRate) {
     var animationFrame = new AnimationFrame(frameRate);
-    window.requestAnimationFrame = (function(self){
-        return function() {
-            animationFrame.request.apply(self, arguments);
-        }
-    }(animationFrame));
-    window.cancelAnimationFrame = (function(self){
-        return function() {
-            animationFrame.cancel.apply(self, arguments);
-        }
-    }(animationFrame));
+
+    window.requestAnimationFrame = function(callback) {
+        return animationFrame.request(callback);
+    };
+    window.cancelAnimationFrame = function(id) {
+        return animationFrame.cancel(id);
+    };
+
     return animationFrame;
 };
 
@@ -92,7 +90,7 @@ AnimationFrame.prototype.request = function(callback) {
     var self = this,
         delay;
 
-    if (useNative && !this._isCustomFrameRate) return nativeRequestAnimationFrame(callback);
+    if (hasNative && !this._isCustomFrameRate) return nativeRequestAnimationFrame(callback);
 
     if (this._tickId == null) {
         // Much faster than Math.max
@@ -102,7 +100,7 @@ AnimationFrame.prototype.request = function(callback) {
 
         // We assume native implementation runs with same rate as our default.
         // Correct the frame rate considering native raf delay.
-        if (useNative && this._isCustomFrameRate) {
+        if (hasNative && this._isCustomFrameRate) {
             delay = delay - self._originalFrameLength;
         }
 
@@ -119,7 +117,7 @@ AnimationFrame.prototype.request = function(callback) {
             ++self._tickCounter;
             for (i = 0; i < len; ++i) {
                 if (callbacks[i]) {
-                    if (useNative && self._isCustomFrameRate) {
+                    if (hasNative && self._isCustomFrameRate) {
                         nativeRequestAnimationFrame(callbacks[i]);
                     } else {
                         callbacks[i](self._lastTickTime);
@@ -142,7 +140,7 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (useNative && !this._isCustomFrameRate) return nativeCancelRequestAnimationFrame(id);
+    if (hasNative && !this._isCustomFrameRate) return nativeCancelRequestAnimationFrame(id);
     delete this._callbacks[id - this._tickCounter];
 };
 
