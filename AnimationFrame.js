@@ -30,9 +30,7 @@ var now = Date.now,
     // There are some issues on ios6
     // http://shitwebkitdoes.tumblr.com/post/47186945856/native-requestanimationframe-broken-on-ios-6
     // https://gist.github.com/KrofDrakula/5318048
-    nativeRequestAnimationFrame && nativeRequestAnimationFrame(function() {
-        hasNative = true;
-    });
+    hasNative = nativeRequestAnimationFrame && !/iP(ad|hone|od).*OS (6|7)/.test(window.navigator.userAgent);
 }());
 
 function AnimationFrame(frameRate) {
