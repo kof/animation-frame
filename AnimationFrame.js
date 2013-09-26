@@ -132,7 +132,7 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (hasNative && !this._isCustomFrameRate) return nativeCancelRequestAnimationFrame(id);
+    if (hasNative && !this._isCustomFrameRate) return nativeCancelAnimationFrame(id);
     delete this._callbacks[id - this._tickCounter];
 };
 
