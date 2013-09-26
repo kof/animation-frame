@@ -1,6 +1,6 @@
 {
   "name": "animationFrame",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An even better requestAnimationFrame",
   "author": {
     "name": "Oleg Slobodskoi",

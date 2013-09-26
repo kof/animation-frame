@@ -40,8 +40,8 @@ function AnimationFrame(frameRate) {
     this.frameRate = frameRate || AnimationFrame.FRAME_RATE;
     this._frameLength = 1000 / this.frameRate;
     this._isCustomFrameRate = this.frameRate !== AnimationFrame.FRAME_RATE;
-    this._tickId = null;
-    this._callbacks = {length: 0};
+    this._timeoutId = null;
+    this._callbacks = {};
     this._lastTickTime = 0;
     this._tickCounter = 0;
 }
@@ -89,39 +89,43 @@ AnimationFrame.prototype.request = function(callback) {
     var self = this,
         delay;
 
-    if (hasNative && !this._isCustomFrameRate) return nativeRequestAnimationFrame(callback);
+    // Alawys inc counter to ensure it never has a conflict with the native counter.
+    // After the feature test phase we don't know exactly which implementation has been used.
+    // Therefore on #cancel we do it for both.
+    ++this._tickCounter;
 
-    if (this._tickId == null) {
+    if (hasNative && !this._isCustomFrameRate) return nativeRequestAnimationFrame(callback);
+    if (!callback) throw new TypeError('Not enough arguments');
+
+    if (this._timeoutId == null) {
         // Much faster than Math.max
         // http://jsperf.com/math-max-vs-comparison/3
         // http://jsperf.com/date-now-vs-date-gettime/11
         delay = this._frameLength + this._lastTickTime - (now ? now() : (new Date).getTime());
         if (delay < 0) delay = 0;
 
-        this._tickId = setTimeout(function() {
-            var i,
-                callbacks = self._callbacks,
-                len = self._callbacks.length;
+        this._timeoutId = setTimeout(function() {
+            var id;
 
-            self._tickId = null;
             self._lastTickTime = now ? now() : (new Date).getTime();
-            self._callbacks = {length: 0};
+            self._timeoutId = null;
             ++self._tickCounter;
-            for (i = 0; i < len; ++i) {
-                if (callbacks[i]) {
-                    if (hasNative && self._isCustomFrameRate) {
-                        nativeRequestAnimationFrame(callbacks[i]);
+
+            for (id in self._callbacks) {
+                if (self._callbacks[id]) {
+                    if (hasNative) {
+                        nativeRequestAnimationFrame(self._callbacks[id]);
                     } else {
-                        callbacks[i](self._lastTickTime);
+                        self._callbacks[id](self._lastTickTime);
                     }
+                    delete self._callbacks[id];
                 }
             }
         }, delay);
     }
 
-    this._callbacks[this._callbacks.length] = callback;
-    ++this._callbacks.length;
-    return this._callbacks.length - 1 + this._tickCounter;
+    this._callbacks[this._tickCounter] = callback;
+    return this._tickCounter;
 };
 
 /**
@@ -132,8 +136,8 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (hasNative && !this._isCustomFrameRate) return nativeCancelAnimationFrame(id);
-    delete this._callbacks[id - this._tickCounter];
+    if (hasNative) nativeCancelAnimationFrame(id);
+    delete this._callbacks[id];
 };
 
 // Support commonjs wrapper, amd define and plain window.
