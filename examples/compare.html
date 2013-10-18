@@ -116,7 +116,7 @@
 
             var rateElem = document.getElementById('rate');
             fpsMeter.start(function(fps) {
-                rateElem.innerHTML = fps / groups + ' FPS';
+                rateElem.innerHTML = Math.round(fps / groups) + ' FPS';
             });
 
             $('#add-object').click(function() {

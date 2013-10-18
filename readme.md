@@ -34,7 +34,13 @@ Do it before requesting frames, because after that the frame length is cached.
 
     AnimationFrame.FRAME_RATE = 30;
 
-### Request frame
+### Create instance `new AnimationFrame(options)`
+
+Options can be an object or a number, number is the custom frame rate.
+
+Options:
+   - `useNative` use the native animation frame if possible, defaults to true
+   - `frameRate` pass a custom frame rate
 
     // Using default frame rate
     var animationFrame = new AnimationFrame();
@@ -42,14 +48,23 @@ Do it before requesting frames, because after that the frame length is cached.
     // Using custom frame rate.
     var animationFrame = new AnimationFrame(20);
 
+    // Avoid using native RAF:
+    var animationFrame = new AnimationFrame({useNative: false});
+
+### Request a frame `animationFrame.request(fn)`
+
     var frameId = animationFrame.request(function(time) {
         // Your animation here.
     });
 
-### Cancel frame
+
+### Cancel frame `animationFrame.cancel(frameId)`
 
     var animationFrame = new AnimationFrame();
     animationFrame.cancel(frameId);
+
+### Known problems
+- ios6-7 safari native animation frame animation can conflict with css animations, see #2
 
 ## Credits
 

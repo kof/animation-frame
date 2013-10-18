@@ -35,9 +35,24 @@ var now = Date.now,
     });
 }());
 
-function AnimationFrame(frameRate) {
-    if (!(this instanceof AnimationFrame)) return new AnimationFrame(frameRate);
-    this.frameRate = frameRate || AnimationFrame.FRAME_RATE;
+/**
+ * Animation frame constructor.
+ *
+ * Options:
+ *   - `useNative` use the native animation frame if possible, defaults to true
+ *   - frameRate` pass a custom frame rate
+ *
+ * @param {Object|Number} options
+ */
+function AnimationFrame(options) {
+    if (!(this instanceof AnimationFrame)) return new AnimationFrame(options);
+    options || (options = {});
+
+    // Its a frame rate.
+    if (typeof options == 'number') options = {frameRate: options};
+    options.useNative != null || (options.useNative = true);
+    this.options = options;
+    this.frameRate = options.frameRate || AnimationFrame.FRAME_RATE;
     this._frameLength = 1000 / this.frameRate;
     this._isCustomFrameRate = this.frameRate !== AnimationFrame.FRAME_RATE;
     this._timeoutId = null;
@@ -60,11 +75,11 @@ AnimationFrame.FRAME_RATE = 60;
 /**
  * Replace the globally defined implementation or define it globally.
  *
- * @param {Number} [frameRate] optional frame rate
+ * @param {Object|Number} [options]
  * @api public
  */
-AnimationFrame.shim = function(frameRate) {
-    var animationFrame = new AnimationFrame(frameRate);
+AnimationFrame.shim = function(options) {
+    var animationFrame = new AnimationFrame(options);
 
     window.requestAnimationFrame = function(callback) {
         return animationFrame.request(callback);
@@ -79,7 +94,7 @@ AnimationFrame.shim = function(frameRate) {
 
 /**
  * Request animation frame.
- * We will use the native raf as soon as we know it does works.
+ * We will use the native RAF as soon as we know it does works.
  *
  * @param {Function} callback
  * @return {Number} timeout id or requested animation frame id
@@ -94,7 +109,10 @@ AnimationFrame.prototype.request = function(callback) {
     // Therefore on #cancel we do it for both.
     ++this._tickCounter;
 
-    if (hasNative && !this._isCustomFrameRate) return nativeRequestAnimationFrame(callback);
+    if (hasNative && self.options.useNative && !this._isCustomFrameRate) {
+        return nativeRequestAnimationFrame(callback);
+    }
+
     if (!callback) throw new TypeError('Not enough arguments');
 
     if (this._timeoutId == null) {
@@ -113,7 +131,7 @@ AnimationFrame.prototype.request = function(callback) {
 
             for (id in self._callbacks) {
                 if (self._callbacks[id]) {
-                    if (hasNative) {
+                    if (hasNative && self.options.useNative) {
                         nativeRequestAnimationFrame(self._callbacks[id]);
                     } else {
                         self._callbacks[id](self._lastTickTime);
@@ -136,7 +154,7 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (hasNative) nativeCancelAnimationFrame(id);
+    if (hasNative && this.options.useNative) nativeCancelAnimationFrame(id);
     delete this._callbacks[id];
 };
 
