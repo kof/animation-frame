@@ -20,12 +20,12 @@ Otherwise its defined on window:
 
     var AnimationFrame = window.AnimationFrame;
 
-### Activate the shim
+### Activate the shim `AnimationFrame.shim(options)`
 
 It will replace native implementation if it does exist but still will use it if possible.
 So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` after this  safely. Optionally you can pass the frame rate.
 
-    var animationFrame = AnimationFrame.shim();
+    AnimationFrame.shim(options);
 
 ### Set custom default frame rate
 
@@ -42,6 +42,7 @@ Options:
    - `useNative` use the native animation frame if possible, defaults to true
    - `frameRate` pass a custom frame rate
 
+```
     // Using default frame rate
     var animationFrame = new AnimationFrame();
 
@@ -50,6 +51,7 @@ Options:
 
     // Avoid using native RAF:
     var animationFrame = new AnimationFrame({useNative: false});
+```
 
 ### Request a frame `animationFrame.request(fn)`
 
