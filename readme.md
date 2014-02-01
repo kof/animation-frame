@@ -66,7 +66,7 @@ Options:
     animationFrame.cancel(frameId);
 
 ### Known problems
-- ios6-7 safari native animation frame animation can conflict with css animations, see #2
+- ios6-7 safari native animation frame animation can conflict with css animations, see [#2](/../../issues/2)
 
 ## Credits
 

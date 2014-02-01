@@ -9,11 +9,8 @@
 ;(function(window) {
 'use strict'
 
-var now = Date.now,
-    setTimeout = window.setTimeout,
-    nativeRequestAnimationFrame = top.requestAnimationFrame,
-    nativeCancelAnimationFrame = top.cancelAnimationFrame || top.cancelRequestAnimationFrame,
-    hasNative = false
+var nativeRequestAnimationFrame = top.requestAnimationFrame,
+    nativeCancelAnimationFrame = top.cancelAnimationFrame || top.cancelRequestAnimationFrame
 
 ;(function() {
     var i,
@@ -31,7 +28,7 @@ var now = Date.now,
     // http://shitwebkitdoes.tumblr.com/post/47186945856/native-requestanimationframe-broken-on-ios-6
     // https://gist.github.com/KrofDrakula/5318048
     nativeRequestAnimationFrame && nativeRequestAnimationFrame(function() {
-        hasNative = true
+        AnimationFrame.hasNative = true
     })
 }())
 
@@ -40,7 +37,7 @@ var now = Date.now,
  *
  * Options:
  *   - `useNative` use the native animation frame if possible, defaults to true
- *   - frameRate` pass a custom frame rate
+ *   - `frameRate` pass a custom frame rate
  *
  * @param {Object|Number} options
  */
@@ -91,6 +88,47 @@ AnimationFrame.shim = function(options) {
     return animationFrame
 }
 
+/**
+ * Crossplatform Date.now()
+ *
+ * @return {Number} time in ms
+ * @api public
+ */
+AnimationFrame.now = Date.now || function() {
+    return (new Date).getTime()
+}
+
+/**
+ * Replacement for PerformanceTiming.navigationStart for the case when
+ * performance.now is not implemented.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/PerformanceTiming.navigationStart
+ *
+ * @type {Number}
+ * @api public
+ */
+AnimationFrame.navigationStart = AnimationFrame.now()
+
+/**
+ * Crossplatform performance.now()
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/Performance.now()
+ *
+ * @return {Number} relative time in ms
+ * @api public
+ */
+AnimationFrame.perfNow = window.performance && window.performance.now || function() {
+    return AnimationFrame.now() - AnimationFrame.navigationStart
+}
+
+/**
+ * Is native animation frame implemented. The right value is set during feature
+ * detection step.
+ *
+ * @type {Boolean}
+ * @api public
+ */
+AnimationFrame.hasNative = false
 
 /**
  * Request animation frame.
@@ -109,7 +147,7 @@ AnimationFrame.prototype.request = function(callback) {
     // Therefore on #cancel we do it for both.
     ++this._tickCounter
 
-    if (hasNative && self.options.useNative && !this._isCustomFrameRate) {
+    if (AnimationFrame.hasNative && self.options.useNative && !this._isCustomFrameRate) {
         return nativeRequestAnimationFrame(callback)
     }
 
@@ -119,22 +157,22 @@ AnimationFrame.prototype.request = function(callback) {
         // Much faster than Math.max
         // http://jsperf.com/math-max-vs-comparison/3
         // http://jsperf.com/date-now-vs-date-gettime/11
-        delay = this._frameLength + this._lastTickTime - (now ? now() : (new Date).getTime())
+        delay = this._frameLength + this._lastTickTime - AnimationFrame.now()
         if (delay < 0) delay = 0
 
-        this._timeoutId = setTimeout(function() {
+        this._timeoutId = window.setTimeout(function() {
             var id
 
-            self._lastTickTime = now ? now() : (new Date).getTime()
+            self._lastTickTime = AnimationFrame.now()
             self._timeoutId = null
             ++self._tickCounter
 
             for (id in self._callbacks) {
                 if (self._callbacks[id]) {
-                    if (hasNative && self.options.useNative) {
+                    if (AnimationFrame.hasNative && self.options.useNative) {
                         nativeRequestAnimationFrame(self._callbacks[id])
                     } else {
-                        self._callbacks[id](self._lastTickTime)
+                        self._callbacks[id](AnimationFrame.perfNow())
                     }
                     delete self._callbacks[id]
                 }
@@ -154,9 +192,10 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (hasNative && this.options.useNative) nativeCancelAnimationFrame(id)
+    if (AnimationFrame.hasNative && this.options.useNative) nativeCancelAnimationFrame(id)
     delete this._callbacks[id]
 }
+
 
 // Support commonjs wrapper, amd define and plain window.
 if (typeof exports == 'object' && typeof module == 'object') {

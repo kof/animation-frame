@@ -1,1 +1,2 @@
+- 0.1.4 fix callback param
 - 0.1.0 first version
