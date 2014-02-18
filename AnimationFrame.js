@@ -117,7 +117,8 @@ AnimationFrame.navigationStart = AnimationFrame.now()
  * @return {Number} relative time in ms
  * @api public
  */
-AnimationFrame.perfNow = window.performance && window.performance.now || function() {
+AnimationFrame.perfNow = function() {
+    if (window.performance && window.performance.now) return window.performance.now()
     return AnimationFrame.now() - AnimationFrame.navigationStart
 }
 
