@@ -1,2 +1,4 @@
+- 0.1.6 use xpkg
+- 0.1.5 fix performance.now shim, it requires to be used from 'performance' context
 - 0.1.4 fix callback param
 - 0.1.0 first version
