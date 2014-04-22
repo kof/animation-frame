@@ -9,12 +9,27 @@
 ;(function(window) {
 'use strict'
 
-var nativeRequestAnimationFrame = top.requestAnimationFrame,
-    nativeCancelAnimationFrame = top.cancelAnimationFrame || top.cancelRequestAnimationFrame
+var nativeRequestAnimationFrame,
+    nativeCancelAnimationFrame
 
+// Grab the native request and cancel functions.
 ;(function() {
     var i,
-        vendors = ['webkit', 'moz', 'ms', 'o']
+        vendors = ['webkit', 'moz', 'ms', 'o'],
+        top
+
+    // Test if we are within a foreign domain. Use raf from the top if possible.
+    try {
+        // Accessing .name will throw SecurityError within a foreign domain.
+        window.top.name
+        top = window.top
+    } catch(e) {
+        top = window
+    }
+
+    nativeRequestAnimationFrame = top.requestAnimationFrame
+    nativeCancelAnimationFrame = top.cancelAnimationFrame || top.cancelRequestAnimationFrame
+
 
     // Grab the native implementation.
     for (i = 0; i < vendors.length && !nativeRequestAnimationFrame; i++) {
