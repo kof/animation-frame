@@ -14,7 +14,7 @@
 
 If you are inside of a commonjs/amd module:
 
-    var AnimationFrame = require('AnimationFrame');
+    var AnimationFrame = require('animation-frame');
 
 Otherwise its defined on window:
 
