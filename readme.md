@@ -23,7 +23,7 @@ Otherwise its defined on window:
 ### Activate the shim `AnimationFrame.shim(options)`
 
 It will replace native implementation if it does exist but still will use it if possible.
-So you can use `window.requestAnimationframe` and `window.cancelAnimationFrame` after this  safely. Optionally you can pass the frame rate.
+So you can use `window.requestAnimationFrame` and `window.cancelAnimationFrame` after this  safely. Optionally you can pass the frame rate.
 
     AnimationFrame.shim(options);
 
