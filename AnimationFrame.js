@@ -177,20 +177,18 @@ AnimationFrame.prototype.request = function(callback) {
         if (delay < 0) delay = 0
 
         this._timeoutId = window.setTimeout(function() {
-            var id
-
             self._lastTickTime = AnimationFrame.now()
             self._timeoutId = null
             ++self._tickCounter
-
-            for (id in self._callbacks) {
-                if (self._callbacks[id]) {
+            var callbacks = self._callbacks
+            self._callbacks = {}
+            for (var id in callbacks) {
+                if (callbacks[id]) {
                     if (AnimationFrame.hasNative && self.options.useNative) {
-                        nativeRequestAnimationFrame(self._callbacks[id])
+                        nativeRequestAnimationFrame(callbacks[id])
                     } else {
-                        self._callbacks[id](AnimationFrame.perfNow())
+                        callbacks[id](AnimationFrame.perfNow())
                     }
-                    delete self._callbacks[id]
                 }
             }
         }, delay)
