@@ -1,3 +1,4 @@
+- 0.2.0 rewrite everything in cjs, only optical changes
 - 0.1.8 fix IE8 issue #13
 - 0.1.6 use xpkg
 - 0.1.5 fix performance.now shim, it requires to be used from 'performance' context
