@@ -27,7 +27,8 @@
         npm: {
             devDependencies: {
                 'uglify-js': '2.4.x',
-                browserify: '8.1.0'
+                browserify: '8.1.x',
+                xpkg: '0.2.x'
             }
         },
         bower: true,
