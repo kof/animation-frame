@@ -15,6 +15,7 @@ module.exports = require('./lib/animation-frame')
 var native = require('./native')
 var now = require('./now')
 var performance = require('./performance')
+var global = require('./global')
 
 // Weird native implementation doesn't work if context is defined.
 var nativeRequest = native.request
@@ -68,10 +69,10 @@ AnimationFrame.FRAME_RATE = 60
 AnimationFrame.shim = function(options) {
     var animationFrame = new AnimationFrame(options)
 
-    window.requestAnimationFrame = function(callback) {
+    global.requestAnimationFrame = function(callback) {
         return animationFrame.request(callback)
     }
-    window.cancelAnimationFrame = function(id) {
+    global.cancelAnimationFrame = function(id) {
         return animationFrame.cancel(id)
     }
 
@@ -107,7 +108,7 @@ AnimationFrame.prototype.request = function(callback) {
         var delay = this._frameLength + this._lastTickTime - now()
         if (delay < 0) delay = 0
 
-        this._timeoutId = window.setTimeout(function() {
+        this._timeoutId = global.setTimeout(function() {
             self._lastTickTime = now()
             self._timeoutId = null
             ++self._tickCounter
@@ -142,31 +143,34 @@ AnimationFrame.prototype.cancel = function(id) {
     delete this._callbacks[id]
 }
 
-},{"./native":3,"./now":4,"./performance":6}],3:[function(require,module,exports){
+},{"./global":3,"./native":4,"./now":5,"./performance":7}],3:[function(require,module,exports){
 'use strict'
 
-var top
+module.exports = (1,eval)('this')
+
+},{}],4:[function(require,module,exports){
+'use strict'
+
+var global = require('./global')
 
 // Test if we are within a foreign domain. Use raf from the top if possible.
 try {
     // Accessing .name will throw SecurityError within a foreign domain.
-    window.top.name
-    top = window.top
-} catch(e) {
-    top = window
-}
+    global.top.name
+    global = global.top
+} catch(e) {}
 
-exports.request = top.requestAnimationFrame
-exports.cancel = top.cancelAnimationFrame || top.cancelRequestAnimationFrame
+exports.request = global.requestAnimationFrame
+exports.cancel = global.cancelAnimationFrame || global.cancelRequestAnimationFrame
 exports.supported = false
 
 var vendors = ['Webkit', 'Moz', 'ms', 'O']
 
 // Grab the native implementation.
 for (var i = 0; i < vendors.length && !exports.request; i++) {
-    exports.request = top[vendors[i] + 'RequestAnimationFrame']
-    exports.cancel = top[vendors[i] + 'CancelAnimationFrame'] ||
-        top[vendors[i] + 'CancelRequestAnimationFrame']
+    exports.request = global[vendors[i] + 'RequestAnimationFrame']
+    exports.cancel = global[vendors[i] + 'CancelAnimationFrame'] ||
+        global[vendors[i] + 'CancelRequestAnimationFrame']
 }
 
 // Test if native implementation works.
@@ -180,7 +184,7 @@ if (exports.request) {
     });
 }
 
-},{}],4:[function(require,module,exports){
+},{"./global":3}],5:[function(require,module,exports){
 'use strict'
 
 /**
@@ -193,7 +197,7 @@ module.exports = Date.now || function() {
     return (new Date).getTime()
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict'
 
 var now = require('./now')
@@ -209,10 +213,11 @@ var now = require('./now')
  */
 exports.navigationStart = now()
 
-},{"./now":4}],6:[function(require,module,exports){
+},{"./now":5}],7:[function(require,module,exports){
 'use strict'
 
 var now = require('./now')
+var global = require('./global')
 var PerformanceTiming = require('./performance-timing')
 
 /**
@@ -224,10 +229,10 @@ var PerformanceTiming = require('./performance-timing')
  * @api public
  */
 exports.now = function () {
-    if (window.performance && window.performance.now) return window.performance.now()
+    if (global.performance && global.performance.now) return global.performance.now()
     return now() - PerformanceTiming.navigationStart
 }
 
 
-},{"./now":4,"./performance-timing":5}]},{},[1])(1)
+},{"./global":3,"./now":5,"./performance-timing":6}]},{},[1])(1)
 });
