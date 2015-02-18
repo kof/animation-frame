@@ -1,7 +1,7 @@
 {
     name: 'animation-frame',
     description: 'An even better requestAnimationFrame',
-    version: '0.2.2',
+    version: '0.2.3',
     author: {
         name: 'Oleg Slobodskoi',
         email: 'oleg008@gmail.com'
@@ -31,7 +31,9 @@
                 xpkg: '0.2.x'
             }
         },
-        bower: true,
+        bower: {
+            main: 'AnimationFrame.js'
+        },
         component: {
             repo: 'kof/animation-frame'
         }
