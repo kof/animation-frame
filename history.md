@@ -1,3 +1,4 @@
+- 0.2.1 fix IE8/9 fail #17
 - 0.2.0 rewrite everything in cjs, only optical changes
 - 0.1.8 fix IE8 issue #13
 - 0.1.6 use xpkg
