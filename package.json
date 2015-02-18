@@ -16,7 +16,7 @@
     "requestAnimationFrame",
     "cancelAnimationFrame"
   ],
-  "main": "AnimationFrame.js",
+  "main": "index.js",
   "licenses": [
     {
       "type": "MIT",
