@@ -1,3 +1,5 @@
+- 0.2.3 reverted some 0.2.2 changes which broke bower/component
+- 0.2.2 fix 0.2.0 regression which broke browserify builds #18
 - 0.2.1 fix IE8/9 fail #17
 - 0.2.0 rewrite everything in cjs, only optical changes
 - 0.1.8 fix IE8 issue #13
