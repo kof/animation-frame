@@ -12,13 +12,13 @@ module.exports = require('./lib/animation-frame')
 },{"./lib/animation-frame":2}],2:[function(require,module,exports){
 'use strict'
 
-var native = require('./native')
+var nativeImpl = require('./native')
 var now = require('./now')
 var performance = require('./performance')
 
 // Weird native implementation doesn't work if context is defined.
-var nativeRequest = native.request
-var nativeCancel = native.cancel
+var nativeRequest = nativeImpl.request
+var nativeCancel = nativeImpl.cancel
 
 /**
  * Animation frame constructor.
@@ -94,7 +94,7 @@ AnimationFrame.prototype.request = function(callback) {
     // Therefore on #cancel we do it for both.
     ++this._tickCounter
 
-    if (native.supported && this.options.useNative && !this._isCustomFrameRate) {
+    if (nativeImpl.supported && this.options.useNative && !this._isCustomFrameRate) {
         return nativeRequest(callback)
     }
 
@@ -115,7 +115,7 @@ AnimationFrame.prototype.request = function(callback) {
             self._callbacks = {}
             for (var id in callbacks) {
                 if (callbacks[id]) {
-                    if (native.supported && self.options.useNative) {
+                    if (nativeImpl.supported && self.options.useNative) {
                         nativeRequest(callbacks[id])
                     } else {
                         callbacks[id](performance.now())
@@ -138,7 +138,7 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (native.supported && this.options.useNative) nativeCancel(id)
+    if (nativeImpl.supported && this.options.useNative) nativeCancel(id)
     delete this._callbacks[id]
 }
 
