@@ -32,7 +32,15 @@
             }
         },
         bower: {
-            main: 'AnimationFrame.js'
+            main: 'AnimationFrame.js',
+            ignore: [
+                "x-package.json5",
+                "package.json",
+                "history.md",
+                "component.json",
+                "examples",
+                "Makefile"
+            ]
         },
         component: {
             repo: 'kof/animation-frame'
