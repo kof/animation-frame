@@ -16,6 +16,14 @@
     "requestAnimationFrame",
     "cancelAnimationFrame"
   ],
+  "ignore": [
+    "x-package.json5",
+    "package.json",
+    "history.md",
+    "component.json",
+    "examples",
+    "Makefile"
+  ],
   "main": "AnimationFrame.js",
   "licenses": [
     {
