@@ -20,6 +20,8 @@ var performance = require('./performance')
 var nativeRequest = nativeImpl.request
 var nativeCancel = nativeImpl.cancel
 
+var root = require('./root')
+
 /**
  * Animation frame constructor.
  *
@@ -68,10 +70,10 @@ AnimationFrame.FRAME_RATE = 60
 AnimationFrame.shim = function(options) {
     var animationFrame = new AnimationFrame(options)
 
-    window.requestAnimationFrame = function(callback) {
+    root.requestAnimationFrame = function(callback) {
         return animationFrame.request(callback)
     }
-    window.cancelAnimationFrame = function(id) {
+    root.cancelAnimationFrame = function(id) {
         return animationFrame.cancel(id)
     }
 
@@ -142,29 +144,29 @@ AnimationFrame.prototype.cancel = function(id) {
     delete this._callbacks[id]
 }
 
-},{"./native":3,"./now":4,"./performance":6}],3:[function(require,module,exports){
+},{"./native":3,"./now":4,"./performance":6,"./root":7}],3:[function(require,module,exports){
 'use strict'
 
-var global = window
+var root = require('./root')
 
 // Test if we are within a foreign domain. Use raf from the top if possible.
 try {
     // Accessing .name will throw SecurityError within a foreign domain.
-    global.top.name
-    global = global.top
+    root.top.name
+    root = root.top
 } catch(e) {}
 
-exports.request = global.requestAnimationFrame
-exports.cancel = global.cancelAnimationFrame || global.cancelRequestAnimationFrame
+exports.request = root.requestAnimationFrame
+exports.cancel = root.cancelAnimationFrame || root.cancelRequestAnimationFrame
 exports.supported = false
 
 var vendors = ['Webkit', 'Moz', 'ms', 'O']
 
 // Grab the native implementation.
 for (var i = 0; i < vendors.length && !exports.request; i++) {
-    exports.request = global[vendors[i] + 'RequestAnimationFrame']
-    exports.cancel = global[vendors[i] + 'CancelAnimationFrame'] ||
-        global[vendors[i] + 'CancelRequestAnimationFrame']
+    exports.request = root[vendors[i] + 'RequestAnimationFrame']
+    exports.cancel = root[vendors[i] + 'CancelAnimationFrame'] ||
+        root[vendors[i] + 'CancelRequestAnimationFrame']
 }
 
 // Test if native implementation works.
@@ -178,7 +180,7 @@ if (exports.request) {
     });
 }
 
-},{}],4:[function(require,module,exports){
+},{"./root":7}],4:[function(require,module,exports){
 'use strict'
 
 /**
@@ -212,6 +214,7 @@ exports.navigationStart = now()
 
 var now = require('./now')
 var PerformanceTiming = require('./performance-timing')
+var root = require('./root')
 
 /**
  * Crossplatform performance.now()
@@ -222,10 +225,21 @@ var PerformanceTiming = require('./performance-timing')
  * @api public
  */
 exports.now = function () {
-    if (window.performance && window.performance.now) return window.performance.now()
+    if (root.performance && root.performance.now) return root.performance.now()
     return now() - PerformanceTiming.navigationStart
 }
 
+},{"./now":4,"./performance-timing":5,"./root":7}],7:[function(require,module,exports){
+var root;
+if (typeof window !== 'undefined') { // Browser window
+  root = window;
+} else if (typeof self !== 'undefined') { // Web Worker
+  root = self;
+} else { // Other environments
+  root = this;
+}
 
-},{"./now":4,"./performance-timing":5}]},{},[1])(1)
+module.exports = root;
+
+},{}]},{},[1])(1)
 });
