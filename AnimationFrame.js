@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var n;"undefined"!=typeof window?n=window:"undefined"!=typeof global?n=global:"undefined"!=typeof self&&(n=self),n.AnimationFrame=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.AnimationFrame = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * An even better animation frame.
  *
@@ -15,12 +15,11 @@ module.exports = require('./lib/animation-frame')
 var nativeImpl = require('./native')
 var now = require('./now')
 var performance = require('./performance')
+var root = require('./root')
 
 // Weird native implementation doesn't work if context is defined.
 var nativeRequest = nativeImpl.request
 var nativeCancel = nativeImpl.cancel
-
-var root = require('./root')
 
 /**
  * Animation frame constructor.
@@ -89,47 +88,47 @@ AnimationFrame.shim = function(options) {
  * @api public
  */
 AnimationFrame.prototype.request = function(callback) {
-    var self = this
+  var self = this
 
-    // Alawys inc counter to ensure it never has a conflict with the native counter.
-    // After the feature test phase we don't know exactly which implementation has been used.
-    // Therefore on #cancel we do it for both.
-    ++this._tickCounter
+  // Alawys inc counter to ensure it never has a conflict with the native counter.
+  // After the feature test phase we don't know exactly which implementation has been used.
+  // Therefore on #cancel we do it for both.
+  ++this._tickCounter
 
-    if (nativeImpl.supported && this.options.useNative && !this._isCustomFrameRate) {
-        return nativeRequest(callback)
-    }
+  if (nativeImpl.supported && this.options.useNative && !this._isCustomFrameRate) {
+    return nativeRequest(callback)
+  }
 
-    if (!callback) throw new TypeError('Not enough arguments')
+  if (!callback) throw new TypeError('Not enough arguments')
 
-    if (this._timeoutId == null) {
-        // Much faster than Math.max
-        // http://jsperf.com/math-max-vs-comparison/3
-        // http://jsperf.com/date-now-vs-date-gettime/11
-        var delay = this._frameLength + this._lastTickTime - now()
-        if (delay < 0) delay = 0
+  if (this._timeoutId == null) {
+    // Much faster than Math.max
+    // http://jsperf.com/math-max-vs-comparison/3
+    // http://jsperf.com/date-now-vs-date-gettime/11
+    var delay = this._frameLength + this._lastTickTime - now()
+    if (delay < 0) delay = 0
 
-        this._timeoutId = setTimeout(function() {
-            self._lastTickTime = now()
-            self._timeoutId = null
-            ++self._tickCounter
-            var callbacks = self._callbacks
-            self._callbacks = {}
-            for (var id in callbacks) {
-                if (callbacks[id]) {
-                    if (nativeImpl.supported && self.options.useNative) {
-                        nativeRequest(callbacks[id])
-                    } else {
-                        callbacks[id](performance.now())
-                    }
-                }
-            }
-        }, delay)
-    }
+    this._timeoutId = setTimeout(function() {
+      self._lastTickTime = now()
+      self._timeoutId = null
+      ++self._tickCounter
+      var callbacks = self._callbacks
+      self._callbacks = {}
+      for (var id in callbacks) {
+        if (callbacks[id]) {
+          if (nativeImpl.supported && self.options.useNative) {
+            nativeRequest(callbacks[id])
+          } else {
+            callbacks[id](performance.now())
+          }
+        }
+      }
+    }, delay)
+  }
 
-    this._callbacks[this._tickCounter] = callback
+  this._callbacks[this._tickCounter] = callback
 
-    return this._tickCounter
+  return this._tickCounter
 }
 
 /**
@@ -140,8 +139,8 @@ AnimationFrame.prototype.request = function(callback) {
  * @api public
  */
 AnimationFrame.prototype.cancel = function(id) {
-    if (nativeImpl.supported && this.options.useNative) nativeCancel(id)
-    delete this._callbacks[id]
+if (nativeImpl.supported && this.options.useNative) nativeCancel(id)
+delete this._callbacks[id]
 }
 
 },{"./native":3,"./now":4,"./performance":6,"./root":7}],3:[function(require,module,exports){
@@ -151,9 +150,9 @@ var root = require('./root')
 
 // Test if we are within a foreign domain. Use raf from the top if possible.
 try {
-    // Accessing .name will throw SecurityError within a foreign domain.
-    root.top.name
-    root = root.top
+  // Accessing .name will throw SecurityError within a foreign domain.
+  root.top.name
+  root = root.top
 } catch(e) {}
 
 exports.request = root.requestAnimationFrame
@@ -164,9 +163,9 @@ var vendors = ['Webkit', 'Moz', 'ms', 'O']
 
 // Grab the native implementation.
 for (var i = 0; i < vendors.length && !exports.request; i++) {
-    exports.request = root[vendors[i] + 'RequestAnimationFrame']
-    exports.cancel = root[vendors[i] + 'CancelAnimationFrame'] ||
-        root[vendors[i] + 'CancelRequestAnimationFrame']
+  exports.request = root[vendors[i] + 'RequestAnimationFrame']
+  exports.cancel = root[vendors[i] + 'CancelAnimationFrame'] ||
+    root[vendors[i] + 'CancelRequestAnimationFrame']
 }
 
 // Test if native implementation works.
@@ -175,9 +174,9 @@ for (var i = 0; i < vendors.length && !exports.request; i++) {
 // https://gist.github.com/KrofDrakula/5318048
 
 if (exports.request) {
-    exports.request.call(null, function() {
-        exports.supported = true
-    });
+  exports.request.call(null, function() {
+    exports.supported = true
+  })
 }
 
 },{"./root":7}],4:[function(require,module,exports){
@@ -190,7 +189,7 @@ if (exports.request) {
  * @api private
  */
 module.exports = Date.now || function() {
-    return (new Date).getTime()
+  return (new Date).getTime()
 }
 
 },{}],5:[function(require,module,exports){
@@ -225,21 +224,24 @@ var root = require('./root')
  * @api public
  */
 exports.now = function () {
-    if (root.performance && root.performance.now) return root.performance.now()
-    return now() - PerformanceTiming.navigationStart
+  if (root.performance && root.performance.now) return root.performance.now()
+  return now() - PerformanceTiming.navigationStart
 }
 
 },{"./now":4,"./performance-timing":5,"./root":7}],7:[function(require,module,exports){
-var root;
-if (typeof window !== 'undefined') { // Browser window
-  root = window;
-} else if (typeof self !== 'undefined') { // Web Worker
-  root = self;
-} else { // Other environments
-  root = this;
+var root
+// Browser window
+if (typeof window !== 'undefined') {
+  root = window
+// Web Worker
+} else if (typeof self !== 'undefined') {
+  root = self
+// Other environments
+} else {
+  root = this
 }
 
-module.exports = root;
+module.exports = root
 
 },{}]},{},[1])(1)
 });
